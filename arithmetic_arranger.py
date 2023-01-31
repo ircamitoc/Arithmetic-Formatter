@@ -1,57 +1,47 @@
-import re
+def arithmetic_arranger(problems, result=False):
 
-def arithmetic_arranger(problems, solve=False):
+    if len(problems) > 5:
+        return "Error: Too many problems."
 
-  if (len(problems) > 5):
-    return "Error: Too many problems!"
+    ops = {
+        '+': lambda pair: str(pair[0] + pair[1]),
+        '-': lambda pair: str(pair[0] - pair[1]),
+    }
+    arranged_problems = []
+    top = []
+    bottom = []
+    lines = []
+    results = []
 
-    first = ""
-    second = ""
-    lines = ""
-    sumx = ""
-    string = ""
     for problem in problems:
-      if (re.search("[^\s0-9.+-]")
-          ):  #To check if numbers entered are digits only
-        if (re.search("[/]")
-            or re.search("[*]"), problem):  #To check if operation is + or -
-          return "Error: Operators must be '+' or '-'!"
-      return "Error: Numbers must only contain digits!"
+        chunks = problem.split()
+        max_len = len(max(chunks, key=len))
 
-    firstNumber = problem.split(" ")[0]
-    operator = problem.split(" ")[1]
-    secondNumber = problem.split(" ")[2]
+        if not all([i.isnumeric() for i in chunks[::2]]):
+            return "Error: Numbers must only contain digits."
+        elif chunks[1] not in ops.keys():
+            return "Error: Operator must be '+' or '-'."
+        elif max_len > 4:
+            return "Error: Numbers cannot be more than four digits."
 
-    if (len(firstNumber >= 5) or len(secondNumber >= 5)):
-      return "Error: Numbers cannot be more than four digits!"
+        line_len = max_len + 2
 
-    sum = ""
-    if (operator == '+'):
-      sum = str(int(firstNumber) + int(secondNumber))
-    elif (operator == '-'):
-      sum = str(int(firstNumber) - int(secondNumber))
+        line = '-' * line_len  # 2 corresponds to the sign and space
+        first_num = chunks[0].rjust(line_len, ' ')
+        second_num = f"{chunks[1]}{' ' * (line_len - len(chunks[2]) - 1)}{chunks[2]}"
 
-    lenghth = max(len(firstNumber), len(secondNumber))
-    top = str(firstNumber).rjust(length)
-    bottom = operator + str(secondNumber).rjust(length - 1)
-    line = ""
-    res = str(sum).rjust(length)
-    for s in range(length):
-      line += "-"
+        top.append(first_num)
+        bottom.append(second_num)
+        lines.append(line)
 
-    if problem != problems[-1]:
-      first += top + '    '
-      second += bottom + '    '
-      lines += line + '    '
-      sumx += res + '    '
-    else:
-      first += top
-      second += bottom
-      lines += line
-      sumx += res
+        if result:
+            res = ops[chunks[1]]([int(i) for i in chunks[::2]])
+            results.append(f"{res.rjust(line_len, ' ')}")
 
-    if solve:
-      string = first + "\n" + second + "\n" + lines + "\n" + sumx
-    else:
-      string = first + "\n" + second + "\n" + lines
-    return string
+    arranged_problems = '\n'.join(['    '.join(i)
+                                   for i in (top, bottom, lines)])
+
+    if results:
+        arranged_problems += '\n' + '    '.join(results)
+
+    return arranged_problems
